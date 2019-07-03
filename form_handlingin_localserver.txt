@@ -1,0 +1,172 @@
+app.module.ts
+____________________________________________________________________________________________________________________________
+
+import { BrowserModule } from '@angular/platform-browser';
+import { NgModule } from '@angular/core';
+import { AppRoutingModule } from './app-routing.module'
+import { AppComponent } from './app.component';
+import { Component1Component } from './components/component1/component1.component';
+import { Component2Component } from './components/component2/component2.component';
+import { HttpClientModule } from '@angular/common/http';
+import { FormsModule } from '@angular/forms'
+@NgModule({
+  declarations: [
+    AppComponent,
+    Component1Component,
+    Component2Component
+  ],
+  imports: [
+    BrowserModule,AppRoutingModule,HttpClientModule,FormsModule
+  ],
+  providers: [],
+  bootstrap: [AppComponent]
+})
+export class AppModule { }
+_____________________________________________________________________________________________________________________________
+app.component.ts
+=================
+import { Component } from '@angular/core';
+
+@Component({
+  selector: 'app-root',
+  templateUrl: './app.component.html',
+  styleUrls: ['./app.component.css']
+})
+export class AppComponent {
+  title = 'serviceptoc';
+}
+_____________________________________________________________________________________________________________________________
+app.component.html
+++++++++++++++++++++++
+<app-component1></app-component1>
+<hr>
+<app-component2></app-component2>
+_____________________________________________________________________________________________________________________________
+commonservice.ts
+====================
+import { Injectable } from '@angular/core';
+import { Subject } from 'rxjs';
+import { HttpClient } from '@angular/common/http'
+@Injectable({
+  providedIn: 'root'
+})
+export class CommonserviceService {
+communicate= new Subject()
+data1;
+  constructor(private _http:HttpClient) {
+    console.log(this.communicate)
+   }
+   sendData(details){
+
+     console.log(details)
+     this.communicate.next(details)
+   }
+   getdata(){
+    return this._http.get('http://localhost:3000/users')
+   }
+   addauthor(obj){
+     return this._http.post('http://localhost:3000/users',obj)
+   }
+}
+_____________________________________________________________________________________________________________________________
+compond1.component.ts
+==============================
+import { Component, OnInit } from '@angular/core';
+import { CommonserviceService } from '../commonservice.service'
+@Component({
+  selector: 'app-component1',
+  templateUrl: './component1.component.html',
+  styleUrls: ['./component1.component.css']
+})
+export class Component1Component implements OnInit {
+users;
+  constructor(private commonService:CommonserviceService) { }
+ ngOnInit() {
+   this.diplay()
+  }
+  selectUser(obj){
+    console.log(obj)
+   this.commonService.sendData(obj)
+  }
+  adddata(myform){
+    console.log(myform)
+    this.commonService.addauthor(myform).subscribe((res)=>{
+      console.log(res)
+      this.diplay()
+    })
+  }
+  diplay(){
+    this.commonService.getdata().subscribe((res)=>{
+      this.users=res;
+    });
+  }
+}
+_____________________________________________________________________________________________________________________________
+component1.component.html
+++++++++++++++++++++++++++++
+<p>
+  component1 works!
+</p>
+<ul>
+  <li *ngFor="let obj of users" (click)="selectUser(obj)">
+{{obj.title}}
+  </li>
+</ul>
+<form #myform='ngForm'>
+  <label>Title</label>
+<input type="text" name="title" ngModel><br>
+<label>Author</label>
+<input type="text" name="author" ngModel>
+<button (click)='adddata(myform.value)' type="button">GetData</button>
+</form>
+_____________________________________________________________________________________________________________________________
+component2.component.ts
+=================================
+import { Component, OnInit } from '@angular/core';
+import { CommonserviceService } from '../commonservice.service'
+@Component({
+  selector: 'app-component2',
+  templateUrl: './component2.component.html',
+  styleUrls: ['./component2.component.css']
+})
+export class Component2Component implements OnInit {
+user;
+  constructor(private commonService:CommonserviceService) { }
+
+  ngOnInit() {
+this.commonService.communicate.subscribe((res)=>{
+  this.user=res;
+  console.log(res)
+})
+  }
+
+}
+____________________________________________________________________________________________________________________________
+component2.component.html
++++++++++++++++++++++++++++++++++++++=
+<p>
+  component2 works!
+</p>
+<h4 *ngIf="user">Title : {{user.title}}<br>Author : {{user.author}}</h4>
+____________________________________________________________________________________________________________________________
+output
+------------------
+component1 works!
+
+node application
+Inside Words
+More Tools for Teaching Content Literacy
+Becoming a Literacy Leader, Second Edition
+Put Thinking to the Test
+10 Things Every Writer Needs to Know
+The Shining
+----------------------------------form
+Title
+
+Author
+GetData
+----------------------------------end
+component2 works!
+
+Title : The Shining
+Author : Stephen King
