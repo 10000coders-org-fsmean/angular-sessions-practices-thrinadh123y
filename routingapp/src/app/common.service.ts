@@ -20,4 +20,16 @@ data
    getusers(){
      return this._http.get('http://localhost:3000/userdata')
    }
+   update(obj){
+     let headers={
+       "Content-Type":"application/json"
+     }
+     return this._http.put('http://localhost:3000/products/'+obj.id,obj,{headers:headers})
+   }
+   delete(obj){
+    let headers={
+      "Content-Type":"application/json"
+    }
+    return this._http.delete('http://localhost:3000/products/'+obj.id,{headers:headers})
+  }
 }
